@@ -304,6 +304,52 @@ input[type="range"]::-webkit-slider-thumb{
 
 /* Divider */
 .divider{height:1px;background:var(--border);margin:20px 0}
+
+/* Reminder banner */
+.reminder{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-radius:var(--radius);margin-bottom:12px;cursor:pointer;
+  text-decoration:none;transition:transform .1s;
+}
+.reminder:active{transform:scale(.98)}
+.reminder-am{background:rgba(240,194,127,.1);border:1px solid rgba(240,194,127,.25)}
+.reminder-pm{background:rgba(123,104,238,.1);border:1px solid rgba(123,104,238,.25)}
+.reminder-icon{font-size:1.4rem;flex-shrink:0}
+.reminder-text{flex:1}
+.reminder-title{font-size:.9rem;font-weight:600;color:var(--text)}
+.reminder-sub{font-size:.75rem;color:var(--text2);margin-top:1px}
+.reminder-arrow{color:var(--text2);font-size:1.1rem}
+
+/* Settings */
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0;border-bottom:1px solid var(--border);
+}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:.9rem;font-weight:500}
+.setting-sub{font-size:.75rem;color:var(--text2);margin-top:2px}
+input[type="time"]{
+  background:var(--surface2);color:var(--text);border:1px solid var(--border);
+  border-radius:8px;padding:8px 12px;font-size:.9rem;
+  -webkit-appearance:none;
+}
+.switch{
+  position:relative;width:48px;height:28px;flex-shrink:0;
+}
+.switch input{opacity:0;width:0;height:0}
+.switch-slider{
+  position:absolute;inset:0;background:var(--surface2);border-radius:14px;
+  border:1px solid var(--border);cursor:pointer;transition:all .2s;
+}
+.switch-slider::before{
+  content:'';position:absolute;width:22px;height:22px;border-radius:50%;
+  background:var(--text2);left:2px;top:2px;transition:all .2s;
+}
+.switch input:checked+.switch-slider{background:var(--accent);border-color:var(--accent)}
+.switch input:checked+.switch-slider::before{transform:translateX(20px);background:#fff}
+
+/* Export button in history */
+.export-row{display:flex;gap:10px;margin-bottom:16px}
 </style>
 </head>
 <body>
@@ -327,6 +373,8 @@ input[type="range"]::-webkit-slider-thumb{
   </div>
   <h1>Forge Core</h1>
   <p class="subtitle">Nervous system regulation</p>
+
+  <div id="reminders"></div>
 
   <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:28px">
     <a class="btn btn-morning" href="#/am"><span class="btn-icon">☀️</span> Morning Check-In</a>
@@ -360,6 +408,7 @@ input[type="range"]::-webkit-slider-thumb{
 
   <div class="footer">
     <a href="#/history">History</a>
+    <a href="#/settings">Settings</a>
     <a onclick="resetData()">Reset Data</a>
   </div>
 </div>
@@ -579,8 +628,59 @@ input[type="range"]::-webkit-slider-thumb{
 <div id="page-history" class="page">
   <a class="back-link" href="#/">← Back</a>
   <h2>📋 History</h2>
+  <div class="export-row">
+    <button class="btn btn-secondary btn-small" onclick="exportCSV()">Export CSV</button>
+  </div>
   <div id="history-list"></div>
   <p id="history-empty" class="text-center text-muted mt-24" style="display:none">No entries yet.</p>
+</div>
+
+<!-- ==================== SETTINGS ==================== -->
+<div id="page-settings" class="page">
+  <a class="back-link" href="#/">← Back</a>
+  <h2>Settings</h2>
+
+  <div class="card">
+    <div class="section-header" style="margin-bottom:4px">Reminders</div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Enable Notifications</div>
+        <div class="setting-sub" id="notif-status">Not enabled</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="notif-toggle" onchange="toggleNotifications()">
+        <span class="switch-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Morning Reminder</div>
+        <div class="setting-sub">When to prompt AM check-in</div>
+      </div>
+      <input type="time" id="am-reminder-time" value="08:00" onchange="saveSettings()">
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Evening Reminder</div>
+        <div class="setting-sub">When to prompt PM check-out</div>
+      </div>
+      <input type="time" id="pm-reminder-time" value="21:00" onchange="saveSettings()">
+    </div>
+  </div>
+
+  <div class="card mt-12">
+    <div class="section-header" style="margin-bottom:4px">Data</div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Export Data</div>
+        <div class="setting-sub">Download all entries as CSV</div>
+      </div>
+      <button class="btn btn-secondary btn-small" onclick="exportCSV()">Export</button>
+    </div>
+  </div>
 </div>
 
 </div><!-- /app -->
@@ -632,6 +732,7 @@ function route() {
     case '/pm': pageId = 'page-pm'; loadPMForm(); break;
     case '/trigger': pageId = 'page-trigger'; initTrigger(); break;
     case '/history': pageId = 'page-history'; renderHistory(); break;
+    case '/settings': pageId = 'page-settings'; loadSettings(); break;
     default: pageId = 'page-home'; renderHome(); break;
   }
 
@@ -653,6 +754,7 @@ function renderHome() {
   document.getElementById('stat-triggers').textContent = (entry.triggerEvents || []).length;
   document.getElementById('stat-streak').textContent = calcStreak();
 
+  renderReminders();
   renderWeek();
 }
 
@@ -1122,6 +1224,191 @@ function resetData() {
     renderHome();
   }
 }
+
+// ===== EXPORT =====
+function exportCSV() {
+  const data = loadData();
+  const dates = Object.keys(data.entries).sort();
+
+  if (dates.length === 0) {
+    showToast('No data to export');
+    return;
+  }
+
+  const headers = ['Date','AM Body State','AM Emotion','AM Intensity','AM Principle','PM Rumination','PM Paused','PM Trigger','PM Win','Trigger Count','Trigger Details'];
+  const rows = [headers.join(',')];
+
+  dates.forEach(dateKey => {
+    const e = data.entries[dateKey];
+    const cols = [
+      dateKey,
+      e.am ? e.am.bodyState : '',
+      e.am ? e.am.emotion : '',
+      e.am ? e.am.intensity : '',
+      e.am ? (e.am.principle || '') : '',
+      e.pm ? e.pm.rumination : '',
+      e.pm ? (e.pm.paused === true ? 'yes' : e.pm.paused === false ? 'no' : '') : '',
+      e.pm ? csvEscape(e.pm.triggerText || '') : '',
+      e.pm ? csvEscape(e.pm.winText || '') : '',
+      (e.triggerEvents || []).length,
+      (e.triggerEvents || []).map((t,i) => `${t.initialUrge}->${t.afterUrge}${t.notes ? ': '+t.notes : ''}`).join('; ')
+    ];
+    rows.push(cols.map(c => csvEscape(String(c))).join(','));
+  });
+
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `forge-core-export-${todayKey()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV downloaded');
+}
+
+function csvEscape(val) {
+  if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+    return '"' + val.replace(/"/g, '""') + '"';
+  }
+  return val;
+}
+
+// ===== SETTINGS & REMINDERS =====
+const SETTINGS_KEY = 'forge_core_settings';
+
+function loadSettingsData() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { notifications: false, amTime: '08:00', pmTime: '21:00' };
+}
+
+function saveSettings() {
+  const settings = loadSettingsData();
+  settings.amTime = document.getElementById('am-reminder-time').value || '08:00';
+  settings.pmTime = document.getElementById('pm-reminder-time').value || '21:00';
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  scheduleReminders();
+}
+
+function loadSettings() {
+  const settings = loadSettingsData();
+  document.getElementById('am-reminder-time').value = settings.amTime || '08:00';
+  document.getElementById('pm-reminder-time').value = settings.pmTime || '21:00';
+  document.getElementById('notif-toggle').checked = settings.notifications || false;
+  updateNotifStatus();
+}
+
+function toggleNotifications() {
+  const checked = document.getElementById('notif-toggle').checked;
+  if (checked) {
+    if (!('Notification' in window)) {
+      showToast('Notifications not supported on this browser');
+      document.getElementById('notif-toggle').checked = false;
+      return;
+    }
+    Notification.requestPermission().then(perm => {
+      if (perm === 'granted') {
+        const settings = loadSettingsData();
+        settings.notifications = true;
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+        updateNotifStatus();
+        scheduleReminders();
+        showToast('Notifications enabled');
+      } else {
+        document.getElementById('notif-toggle').checked = false;
+        showToast('Permission denied — enable in browser settings');
+      }
+    });
+  } else {
+    const settings = loadSettingsData();
+    settings.notifications = false;
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    updateNotifStatus();
+    clearInterval(reminderInterval);
+  }
+}
+
+function updateNotifStatus() {
+  const settings = loadSettingsData();
+  const el = document.getElementById('notif-status');
+  if (!('Notification' in window)) {
+    el.textContent = 'Not supported in this browser';
+  } else if (settings.notifications && Notification.permission === 'granted') {
+    el.textContent = 'Enabled — AM ' + settings.amTime + ', PM ' + settings.pmTime;
+  } else {
+    el.textContent = 'Not enabled';
+  }
+}
+
+// ===== REMINDER BANNERS =====
+function renderReminders() {
+  const container = document.getElementById('reminders');
+  container.innerHTML = '';
+  const today = todayKey();
+  const entry = getEntry(today);
+  const now = new Date();
+  const hour = now.getHours();
+
+  if (!entry.am && hour >= 5 && hour < 14) {
+    container.innerHTML += `
+      <a class="reminder reminder-am" href="#/am">
+        <span class="reminder-icon">☀️</span>
+        <div class="reminder-text">
+          <div class="reminder-title">Morning check-in due</div>
+          <div class="reminder-sub">How are you starting the day?</div>
+        </div>
+        <span class="reminder-arrow">›</span>
+      </a>`;
+  }
+
+  if (!entry.pm && hour >= 18) {
+    container.innerHTML += `
+      <a class="reminder reminder-pm" href="#/pm">
+        <span class="reminder-icon">🌙</span>
+        <div class="reminder-text">
+          <div class="reminder-title">Evening check-out due</div>
+          <div class="reminder-sub">How did the day go?</div>
+        </div>
+        <span class="reminder-arrow">›</span>
+      </a>`;
+  }
+}
+
+// ===== NOTIFICATION SCHEDULER =====
+let reminderInterval = null;
+let lastAMNotif = null;
+let lastPMNotif = null;
+
+function scheduleReminders() {
+  clearInterval(reminderInterval);
+  const settings = loadSettingsData();
+  if (!settings.notifications || Notification.permission !== 'granted') return;
+
+  reminderInterval = setInterval(() => {
+    const now = new Date();
+    const today = todayKey();
+    const entry = getEntry(today);
+    const timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+    // AM notification
+    if (!entry.am && timeStr === settings.amTime && lastAMNotif !== today) {
+      lastAMNotif = today;
+      new Notification('Forge Core', { body: 'Time for your morning check-in', icon: 'icon-192.png' });
+    }
+
+    // PM notification
+    if (!entry.pm && timeStr === settings.pmTime && lastPMNotif !== today) {
+      lastPMNotif = today;
+      new Notification('Forge Core', { body: 'Time for your evening check-out', icon: 'icon-192.png' });
+    }
+  }, 30000); // Check every 30s
+}
+
+// Start reminders on load
+const _initSettings = loadSettingsData();
+if (_initSettings.notifications) scheduleReminders();
 
 // ===== SERVICE WORKER =====
 if ('serviceWorker' in navigator) {
