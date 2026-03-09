@@ -225,25 +225,29 @@ input[type="range"]::-webkit-slider-thumb{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   min-height:340px;
 }
+.breath-ring{position:relative;width:180px;height:180px}
+.breath-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.breath-ring-bg{fill:none;stroke:var(--surface2);stroke-width:4}
+.breath-ring-fg{fill:none;stroke:var(--calm);stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
 .breath-circle{
-  width:150px;height:150px;border-radius:50%;
+  position:absolute;inset:20px;border-radius:50%;
   background:radial-gradient(circle at 40% 40%,#7fffd4,var(--calm),#2d9f7f);
   display:flex;align-items:center;justify-content:center;
   font-size:1rem;font-weight:700;color:#0a3d2d;text-align:center;
   box-shadow:0 0 40px rgba(85,239,196,.2),0 0 80px rgba(85,239,196,.1);
-  transition:transform .3s ease;
 }
 .breath-circle.inhale{animation:inhale 5s ease-in-out forwards}
 .breath-circle.exhale{animation:exhale 5s ease-in-out forwards}
 @keyframes inhale{
   from{transform:scale(1);box-shadow:0 0 40px rgba(85,239,196,.2)}
-  to{transform:scale(1.5);box-shadow:0 0 60px rgba(85,239,196,.35),0 0 120px rgba(85,239,196,.15)}
+  to{transform:scale(1.35);box-shadow:0 0 60px rgba(85,239,196,.4),0 0 120px rgba(85,239,196,.15)}
 }
 @keyframes exhale{
-  from{transform:scale(1.5);box-shadow:0 0 60px rgba(85,239,196,.35)}
+  from{transform:scale(1.35);box-shadow:0 0 60px rgba(85,239,196,.4)}
   to{transform:scale(1);box-shadow:0 0 40px rgba(85,239,196,.2)}
 }
 .breath-timer{margin-top:24px;font-size:1.3rem;color:var(--text2);font-weight:600;font-variant-numeric:tabular-nums}
+.breath-phase{font-size:.8rem;color:var(--text2);margin-top:4px;text-transform:uppercase;letter-spacing:.06em}
 
 /* Countdown */
 .countdown{
@@ -350,10 +354,112 @@ input[type="time"]{
 
 /* Export button in history */
 .export-row{display:flex;gap:10px;margin-bottom:16px}
+
+/* Welcome / onboarding */
+.welcome{text-align:center;padding:40px 0 20px}
+.welcome .logo svg{width:72px;height:72px}
+.welcome h1{font-size:2.2rem;margin:12px 0 8px}
+.welcome p{color:var(--text2);font-size:1rem;line-height:1.5;margin-bottom:8px}
+.welcome-features{
+  display:flex;flex-direction:column;gap:12px;margin:28px 0;text-align:left;
+}
+.welcome-feature{
+  display:flex;align-items:center;gap:14px;padding:14px 16px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+}
+.welcome-feature-icon{font-size:1.5rem;flex-shrink:0;width:36px;text-align:center}
+.welcome-feature-text{font-size:.9rem;color:var(--text);font-weight:500}
+.welcome-feature-sub{font-size:.75rem;color:var(--text2);margin-top:2px}
+
+/* Share button */
+.share-row{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin-top:12px;padding:12px 0;
+}
+.share-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 16px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:20px;
+  color:var(--text2);font-size:.8rem;cursor:pointer;font-weight:500;
+  transition:all .15s;text-decoration:none;
+}
+.share-btn:active{transform:scale(.96)}
+
+/* Stat animation */
+@keyframes count-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.stat-val.animated{animation:count-in .4s ease forwards}
+
+/* Completed check */
+.btn-completed{position:relative}
+.btn-completed::after{
+  content:'✓';position:absolute;right:16px;
+  font-size:1.1rem;opacity:.7;
+}
+.btn-morning.btn-completed{opacity:.7}
+.btn-evening.btn-completed{opacity:.7}
+
+/* Streak fire */
+.streak-fire{display:inline-block;margin-right:2px}
+
+/* Today's principle badge */
+.principle-badge{
+  display:inline-block;padding:4px 12px;border-radius:12px;
+  background:rgba(108,142,191,.15);border:1px solid rgba(108,142,191,.25);
+  color:var(--accent);font-size:.75rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.04em;margin-top:4px;
+}
 </style>
 </head>
 <body>
 <div id="app">
+
+<!-- ==================== WELCOME (first visit) ==================== -->
+<div id="page-welcome" class="page">
+  <div class="welcome">
+    <div class="logo">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 4C24 4 14 18 14 28a10 10 0 0020 0C34 18 24 4 24 4z" fill="url(#flame-g2)"/>
+        <path d="M24 18c0 0-5 7-5 13a5 5 0 0010 0c0-6-5-13-5-13z" fill="url(#flame-inner2)"/>
+        <defs>
+          <linearGradient id="flame-g2" x1="24" y1="4" x2="24" y2="38" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#f0c27f"/><stop offset="1" stop-color="#e67e22"/>
+          </linearGradient>
+          <linearGradient id="flame-inner2" x1="24" y1="18" x2="24" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#fff5e0"/><stop offset="1" stop-color="#f0c27f"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <h1>Forge Core</h1>
+    <p>Daily nervous system regulation<br>and impulse interruption.</p>
+
+    <div class="welcome-features">
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">☀️</div>
+        <div>
+          <div class="welcome-feature-text">Morning Check-In</div>
+          <div class="welcome-feature-sub">Body state, emotion, intensity, and intention</div>
+        </div>
+      </div>
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">🌙</div>
+        <div>
+          <div class="welcome-feature-text">Evening Check-Out</div>
+          <div class="welcome-feature-sub">Rumination, wins, and daily reflection</div>
+        </div>
+      </div>
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">⚡</div>
+        <div>
+          <div class="welcome-feature-text">Break Glass</div>
+          <div class="welcome-feature-sub">Guided pause when you're triggered</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="dismissWelcome()">Get Started</button>
+    <p style="margin-top:16px;font-size:.75rem;color:var(--text2)">All data stays on your device. No accounts, no tracking.</p>
+  </div>
+</div>
 
 <!-- ==================== HOME ==================== -->
 <div id="page-home" class="page">
@@ -402,8 +508,14 @@ input[type="time"]{
       </div>
     </div>
 
+    <div id="today-principle"></div>
+
     <div class="section-header">Last 7 Days</div>
     <div id="week-list" class="week-list mb-16"></div>
+  </div>
+
+  <div class="share-row">
+    <a class="share-btn" onclick="shareApp()">Share Forge Core</a>
   </div>
 
   <div class="footer">
@@ -577,10 +689,18 @@ input[type="time"]{
   <!-- Step 2: Breathe -->
   <div id="trigger-step-2" class="trigger-step" style="display:none">
     <div class="breath-container">
-      <div class="breath-circle" id="breath-circle">
-        <span id="breath-text">Breathe in...</span>
+      <div class="breath-ring">
+        <svg viewBox="0 0 180 180">
+          <circle class="breath-ring-bg" cx="90" cy="90" r="86"/>
+          <circle class="breath-ring-fg" id="breath-ring-fg" cx="90" cy="90" r="86"
+            stroke-dasharray="540.35" stroke-dashoffset="540.35"/>
+        </svg>
+        <div class="breath-circle" id="breath-circle">
+          <span id="breath-text">Breathe in...</span>
+        </div>
       </div>
       <div class="breath-timer" id="breath-timer">60s</div>
+      <div class="breath-phase" id="breath-phase">Cycle 1 of 6</div>
     </div>
     <div class="btn-row mt-12">
       <button class="btn btn-secondary btn-small" onclick="triggerNext(3)">Skip</button>
@@ -726,6 +846,15 @@ function route() {
   const pages = document.querySelectorAll('.page');
   pages.forEach(p => p.classList.remove('active'));
 
+  // Welcome screen on first visit
+  const hasVisited = localStorage.getItem('forge_core_welcomed');
+  if (!hasVisited && (path === '/' || path === '')) {
+    const el = document.getElementById('page-welcome');
+    if (el) el.classList.add('active');
+    window.scrollTo(0, 0);
+    return;
+  }
+
   let pageId;
   switch(path) {
     case '/am': pageId = 'page-am'; loadAMForm(); break;
@@ -749,13 +878,49 @@ function renderHome() {
   const today = todayKey();
   const entry = getEntry(today);
 
-  document.getElementById('stat-intensity').textContent = entry.am ? entry.am.intensity : '—';
-  document.getElementById('stat-rumination').textContent = entry.pm ? entry.pm.rumination : '—';
-  document.getElementById('stat-triggers').textContent = (entry.triggerEvents || []).length;
-  document.getElementById('stat-streak').textContent = calcStreak();
+  // Stats with animation
+  animateStat('stat-intensity', entry.am ? entry.am.intensity : '—');
+  animateStat('stat-rumination', entry.pm ? entry.pm.rumination : '—');
+  animateStat('stat-triggers', (entry.triggerEvents || []).length);
+  const streak = calcStreak();
+  const streakEl = document.getElementById('stat-streak');
+  streakEl.textContent = streak;
+  if (streak > 0) streakEl.innerHTML = '<span class="streak-fire">🔥</span>' + streak;
+
+  // Completed button states
+  const amBtn = document.querySelector('.btn-morning');
+  const pmBtn = document.querySelector('.btn-evening');
+  if (amBtn) {
+    amBtn.classList.toggle('btn-completed', !!entry.am);
+    amBtn.innerHTML = entry.am
+      ? '<span class="btn-icon">☀️</span> Morning — Done'
+      : '<span class="btn-icon">☀️</span> Morning Check-In';
+  }
+  if (pmBtn) {
+    pmBtn.classList.toggle('btn-completed', !!entry.pm);
+    pmBtn.innerHTML = entry.pm
+      ? '<span class="btn-icon">🌙</span> Evening — Done'
+      : '<span class="btn-icon">🌙</span> Evening Check-Out';
+  }
+
+  // Today's principle
+  const principleEl = document.getElementById('today-principle');
+  if (entry.am && entry.am.principle) {
+    principleEl.innerHTML = '<div class="text-center mb-16"><span class="principle-badge">Today: ' + capitalize(entry.am.principle) + '</span></div>';
+  } else {
+    principleEl.innerHTML = '';
+  }
 
   renderReminders();
   renderWeek();
+}
+
+function animateStat(id, val) {
+  const el = document.getElementById(id);
+  el.textContent = val;
+  el.classList.remove('animated');
+  void el.offsetWidth; // trigger reflow
+  el.classList.add('animated');
 }
 
 function calcStreak() {
@@ -1035,27 +1200,41 @@ function startBreathing() {
   const circle = document.getElementById('breath-circle');
   const textEl = document.getElementById('breath-text');
   const timerEl = document.getElementById('breath-timer');
+  const phaseEl = document.getElementById('breath-phase');
+  const ringFg = document.getElementById('breath-ring-fg');
   const doneBtn = document.getElementById('breath-done-btn');
 
-  let totalSeconds = 60;
-  let phase = 'inhale'; // 5s inhale, 5s exhale
+  const totalDuration = 60;
+  let totalSeconds = totalDuration;
+  let phase = 'inhale';
   let phaseTime = 0;
+  let cycle = 1;
+  const circumference = 2 * Math.PI * 86; // ~540.35
 
   doneBtn.disabled = true;
   circle.className = 'breath-circle inhale';
   textEl.textContent = 'Breathe in...';
   timerEl.textContent = '60s';
+  phaseEl.textContent = 'Cycle 1 of 6';
+  ringFg.style.strokeDasharray = circumference;
+  ringFg.style.strokeDashoffset = circumference;
 
   clearInterval(breathInterval);
   breathInterval = setInterval(() => {
     totalSeconds--;
     phaseTime++;
 
+    // Update ring progress
+    const progress = 1 - (totalSeconds / totalDuration);
+    ringFg.style.strokeDashoffset = circumference * (1 - progress);
+
     if (phaseTime >= 5) {
       phaseTime = 0;
+      if (phase === 'exhale') cycle++;
       phase = phase === 'inhale' ? 'exhale' : 'inhale';
       circle.className = 'breath-circle ' + phase;
       textEl.textContent = phase === 'inhale' ? 'Breathe in...' : 'Breathe out...';
+      phaseEl.textContent = `Cycle ${Math.min(cycle, 6)} of 6`;
     }
 
     timerEl.textContent = totalSeconds + 's';
@@ -1065,6 +1244,8 @@ function startBreathing() {
       circle.className = 'breath-circle';
       textEl.textContent = 'Done';
       timerEl.textContent = '';
+      phaseEl.textContent = 'Complete';
+      ringFg.style.strokeDashoffset = '0';
       doneBtn.disabled = false;
     }
   }, 1000);
@@ -1409,6 +1590,28 @@ function scheduleReminders() {
 // Start reminders on load
 const _initSettings = loadSettingsData();
 if (_initSettings.notifications) scheduleReminders();
+
+// ===== WELCOME =====
+function dismissWelcome() {
+  localStorage.setItem('forge_core_welcomed', '1');
+  location.hash = '#/';
+  route();
+}
+
+// ===== SHARE =====
+function shareApp() {
+  const url = 'https://jddb74.github.io/forge-core/';
+  const text = 'Forge Core — daily nervous system regulation and impulse interruption tool.';
+  if (navigator.share) {
+    navigator.share({ title: 'Forge Core', text, url }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('Link copied to clipboard');
+    }).catch(() => {
+      showToast('Share: ' + url);
+    });
+  }
+}
 
 // ===== SERVICE WORKER =====
 if ('serviceWorker' in navigator) {
