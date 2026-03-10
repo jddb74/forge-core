@@ -444,6 +444,63 @@ input[type="time"]{
 .win-complete-icon{
   font-size:3rem;text-align:center;margin:20px 0 12px;
 }
+
+/* Anxiety Wave */
+.btn-anxiety{
+  background:linear-gradient(135deg,#74b9ff 0%,#4a8fd4 100%);
+  box-shadow:0 4px 20px rgba(116,185,255,.25);
+  color:#0a1e33;font-size:1.05rem;
+}
+.anxiety-step{display:none}
+.anxiety-step.active{display:block}
+.anxiety-step-dots .step-dot.active{background:#74b9ff;box-shadow:0 0 8px rgba(116,185,255,.5)}
+.anxiety-step-dots .step-dot.done{background:#74b9ff;opacity:.5}
+.anxiety-title{font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:12px}
+.anxiety-body{color:var(--text2);font-size:.95rem;line-height:1.7;margin-bottom:20px}
+.anxiety-body p{margin-bottom:14px}
+.anxiety-anchor{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 20px;margin-bottom:20px;font-style:italic;color:#74b9ff;
+  font-size:1rem;line-height:1.5;text-align:center;font-weight:500;
+}
+.anxiety-instruction{
+  font-size:.8rem;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;
+  margin-bottom:16px;font-weight:600;
+}
+.anxiety-breath-container{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:260px;margin-bottom:16px;
+}
+.anxiety-breath-circle{
+  width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle at 40% 40%,#a8d8ff,#74b9ff,#4a8fd4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;font-weight:700;color:#0a1e33;text-align:center;
+  box-shadow:0 0 40px rgba(116,185,255,.2),0 0 80px rgba(116,185,255,.1);
+}
+.anxiety-breath-circle.a-inhale{animation:a-inhale 4s ease-in-out forwards}
+.anxiety-breath-circle.a-exhale{animation:a-exhale 6s ease-in-out forwards}
+@keyframes a-inhale{
+  from{transform:scale(1);box-shadow:0 0 40px rgba(116,185,255,.2)}
+  to{transform:scale(1.4);box-shadow:0 0 60px rgba(116,185,255,.4),0 0 120px rgba(116,185,255,.15)}
+}
+@keyframes a-exhale{
+  from{transform:scale(1.4);box-shadow:0 0 60px rgba(116,185,255,.4)}
+  to{transform:scale(1);box-shadow:0 0 40px rgba(116,185,255,.2)}
+}
+.anxiety-breath-count{margin-top:16px;font-size:1.1rem;color:var(--text2);font-weight:600;font-variant-numeric:tabular-nums}
+.anxiety-breath-support{font-size:.8rem;color:var(--text2);margin-top:8px;font-style:italic;text-align:center}
+.anxiety-grounding li{
+  list-style:none;padding:8px 0;font-size:1rem;color:var(--text);line-height:1.5;
+}
+.anxiety-grounding li::before{content:'· ';color:#74b9ff;font-weight:700}
+.anxiety-close-options{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.anxiety-close-chip{
+  padding:10px 18px;border-radius:24px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text2);font-size:.9rem;cursor:pointer;
+  transition:all .2s ease;font-weight:500;
+}
+.anxiety-close-chip:active{background:#74b9ff;color:#0a1e33;border-color:#74b9ff}
 </style>
 </head>
 <body>
@@ -524,6 +581,7 @@ input[type="time"]{
     <a class="btn btn-evening" href="#/pm"><span class="btn-icon">🌙</span> Evening Check-Out</a>
     <a class="btn btn-trigger" href="#/trigger"><span class="btn-icon">⚡</span> I'm Triggered</a>
     <a class="btn btn-win" href="#/win"><span class="btn-icon">🏆</span> Lock the Win</a>
+    <a class="btn btn-anxiety" href="#/anxiety"><span class="btn-icon">🌊</span> Anxiety Wave</a>
   </div>
 
   <div id="home-stats">
@@ -923,6 +981,116 @@ input[type="time"]{
   </div>
 </div>
 
+<!-- ==================== ANXIETY WAVE ==================== -->
+<div id="page-anxiety" class="page">
+  <a class="back-link" href="#/">← Back</a>
+  <h2>🌊 Anxiety Wave</h2>
+
+  <div class="step-dots anxiety-step-dots" id="anxiety-dots">
+    <div class="step-dot active"></div>
+    <div class="step-dot"></div>
+    <div class="step-dot"></div>
+    <div class="step-dot"></div>
+    <div class="step-dot"></div>
+    <div class="step-dot"></div>
+  </div>
+
+  <!-- Step 0: Intro -->
+  <div id="anxiety-step-0" class="anxiety-step active">
+    <div class="anxiety-title">This Moment</div>
+    <div class="anxiety-body">
+      <p>You are experiencing anxiety.</p>
+      <p>That does not mean something is wrong with your life.<br>It means your nervous system is activated right now.</p>
+    </div>
+    <div class="anxiety-anchor">This is anxiety in this moment.</div>
+    <button class="btn btn-anxiety" onclick="anxietyNext(1)">Begin</button>
+  </div>
+
+  <!-- Step 1: Name the Wave -->
+  <div id="anxiety-step-1" class="anxiety-step">
+    <div class="anxiety-title">Name the wave</div>
+    <div class="anxiety-body">
+      <p>This is anxiety.</p>
+      <p>This is anxiety in this moment.</p>
+      <p>I am experiencing anxiety.</p>
+      <p>I am not the anxiety.</p>
+    </div>
+    <div class="anxiety-instruction">Say these slowly.</div>
+    <button class="btn btn-anxiety" onclick="anxietyNext(2)">Next</button>
+  </div>
+
+  <!-- Step 2: Calm the Chest -->
+  <div id="anxiety-step-2" class="anxiety-step">
+    <div class="anxiety-title">Calm the chest</div>
+    <div class="anxiety-body">
+      <p>Put one hand on your chest.</p>
+      <p>Inhale through your nose for 4 seconds.<br>Exhale slowly for 6 seconds.</p>
+      <p>Repeat for 5 breaths.</p>
+    </div>
+    <div class="anxiety-breath-container">
+      <div class="anxiety-breath-circle" id="anxiety-breath-circle">
+        <span id="anxiety-breath-text">Ready</span>
+      </div>
+      <div class="anxiety-breath-count" id="anxiety-breath-count">Breath 0 / 5</div>
+      <div class="anxiety-breath-support">Long exhales tell the body it is safe enough to come down.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary btn-small" onclick="skipAnxietyBreathing()">Skip</button>
+      <button class="btn btn-anxiety" id="anxiety-breath-btn" onclick="startAnxietyBreathing()">Start Breathing</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Tell the Truth -->
+  <div id="anxiety-step-3" class="anxiety-step">
+    <div class="anxiety-title">Tell the truth</div>
+    <div class="anxiety-body">
+      <p>My body thinks I am in danger.<br>I am safe right now.</p>
+      <p>This is a stress response.<br>This moment will pass.</p>
+      <p>I do not need to solve my whole life right now.<br>I only need to stay with this moment.</p>
+    </div>
+    <div class="anxiety-anchor">This is intense, but it is temporary.</div>
+    <button class="btn btn-anxiety" onclick="anxietyNext(4)">Next</button>
+  </div>
+
+  <!-- Step 4: Reorient -->
+  <div id="anxiety-step-4" class="anxiety-step">
+    <div class="anxiety-title">Come back to the room</div>
+    <div class="anxiety-body">
+      <p>Look around and notice:</p>
+    </div>
+    <ul class="anxiety-grounding">
+      <li>3 things you can see</li>
+      <li>2 things you can feel</li>
+      <li>1 thing you can hear</li>
+    </ul>
+    <div class="anxiety-body" style="margin-top:20px">
+      <p>Then say:</p>
+      <p>I am here.<br>This is my body having a response.<br>I can let this pass.</p>
+    </div>
+    <button class="btn btn-anxiety" onclick="anxietyNext(5)">Next</button>
+  </div>
+
+  <!-- Step 5: Close -->
+  <div id="anxiety-step-5" class="anxiety-step">
+    <div class="anxiety-title">Next small step</div>
+    <div class="anxiety-body"><p>Choose one:</p></div>
+    <div class="anxiety-close-options">
+      <div class="anxiety-close-chip">Drink water</div>
+      <div class="anxiety-close-chip">Step outside</div>
+      <div class="anxiety-close-chip">Sit quietly</div>
+      <div class="anxiety-close-chip">Eat something small</div>
+      <div class="anxiety-close-chip">Rest</div>
+    </div>
+    <div class="anxiety-body" style="margin-top:24px">
+      <p>This is anxiety in this moment.<br>Moments pass.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-anxiety" onclick="finishAnxiety()">Finish</button>
+      <a class="btn btn-secondary" href="#/anxiety">Restart</a>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== HISTORY ==================== -->
 <div id="page-history" class="page">
   <a class="back-link" href="#/">← Back</a>
@@ -1042,6 +1210,7 @@ function route() {
     case '/history': pageId = 'page-history'; renderHistory(); break;
     case '/settings': pageId = 'page-settings'; loadSettings(); break;
     case '/win': pageId = 'page-win'; initWin(); break;
+    case '/anxiety': pageId = 'page-anxiety'; initAnxiety(); break;
     default: pageId = 'page-home'; renderHome(); break;
   }
 
@@ -1622,6 +1791,107 @@ function saveWin() {
   // Go to completion step
   winNext(6);
   showToast('Win locked 🔒');
+}
+
+// ===== ANXIETY WAVE =====
+let anxietyBreathInterval = null;
+
+function initAnxiety() {
+  clearInterval(anxietyBreathInterval);
+
+  // Reset all steps
+  document.querySelectorAll('.anxiety-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('anxiety-step-0').classList.add('active');
+  updateAnxietyDots(0);
+
+  // Reset breathing UI
+  const circle = document.getElementById('anxiety-breath-circle');
+  const text = document.getElementById('anxiety-breath-text');
+  const count = document.getElementById('anxiety-breath-count');
+  const btn = document.getElementById('anxiety-breath-btn');
+  circle.className = 'anxiety-breath-circle';
+  text.textContent = 'Ready';
+  count.textContent = 'Breath 0 / 5';
+  btn.textContent = 'Start Breathing';
+  btn.disabled = false;
+  btn.onclick = startAnxietyBreathing;
+}
+
+function anxietyNext(step) {
+  clearInterval(anxietyBreathInterval);
+  document.querySelectorAll('.anxiety-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('anxiety-step-' + step).classList.add('active');
+  updateAnxietyDots(step);
+  window.scrollTo(0, 0);
+}
+
+function updateAnxietyDots(current) {
+  const dots = document.querySelectorAll('#anxiety-dots .step-dot');
+  dots.forEach((d, i) => {
+    d.className = 'step-dot';
+    if (i < current) d.classList.add('done');
+    if (i === current) d.classList.add('active');
+  });
+}
+
+function startAnxietyBreathing() {
+  const circle = document.getElementById('anxiety-breath-circle');
+  const text = document.getElementById('anxiety-breath-text');
+  const countEl = document.getElementById('anxiety-breath-count');
+  const btn = document.getElementById('anxiety-breath-btn');
+
+  btn.disabled = true;
+  btn.textContent = 'Breathing...';
+
+  let breath = 1;
+  let phase = 'inhale';
+  let phaseTime = 0;
+  const inhaleDur = 4;
+  const exhaleDur = 6;
+  const totalBreaths = 5;
+
+  circle.className = 'anxiety-breath-circle a-inhale';
+  text.textContent = 'Breathe in...';
+  countEl.textContent = `Breath ${breath} / ${totalBreaths}`;
+
+  clearInterval(anxietyBreathInterval);
+  anxietyBreathInterval = setInterval(() => {
+    phaseTime++;
+
+    if (phase === 'inhale' && phaseTime >= inhaleDur) {
+      phase = 'exhale';
+      phaseTime = 0;
+      circle.className = 'anxiety-breath-circle a-exhale';
+      text.textContent = 'Breathe out...';
+    } else if (phase === 'exhale' && phaseTime >= exhaleDur) {
+      breath++;
+      if (breath > totalBreaths) {
+        clearInterval(anxietyBreathInterval);
+        circle.className = 'anxiety-breath-circle';
+        text.textContent = 'Done';
+        countEl.textContent = 'Complete';
+        btn.textContent = 'Next';
+        btn.disabled = false;
+        btn.onclick = function() { anxietyNext(3); };
+        return;
+      }
+      phase = 'inhale';
+      phaseTime = 0;
+      circle.className = 'anxiety-breath-circle a-inhale';
+      text.textContent = 'Breathe in...';
+      countEl.textContent = `Breath ${breath} / ${totalBreaths}`;
+    }
+  }, 1000);
+}
+
+function skipAnxietyBreathing() {
+  clearInterval(anxietyBreathInterval);
+  anxietyNext(3);
+}
+
+function finishAnxiety() {
+  showToast('You rode the wave.');
+  location.hash = '#/';
 }
 
 // ===== HISTORY =====
